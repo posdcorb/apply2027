@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2027 전공심화과정 지원현황</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* MYONGJI CI: DARK BLUE #071748(PANTONE 2768C) · BLUE #0577B3(PANTONE 300C) · DARK GRAY #464D55(Cool Gray 11C) · GRAY #D8D8D8(Cool Gray 3C) */
+:root{
+  --mj-dark:#071748; --mj-blue:#0577b3; --mj-dgray:#464d55; --mj-gray:#d8d8d8;
+  --bg:#f4f5f7; --panel:#fff; --fg:#071748; --muted:#464d55; --line:#e3e5e8;
+  --accent:var(--mj-blue); --accent-soft:#e2eff7; --prev:var(--mj-gray); --ok:#0577b3; --bad:#c2410c;
+  --hero:var(--mj-dark); --chip-on:var(--mj-dark); --cur:var(--mj-dark);
+  --warn-bg:#fff7e6; --warn-fg:#8a5a00; --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#060b1c; --panel:#0e1530; --fg:#eef1f7; --muted:#a9b0bb; --line:#222b47;
+    --accent:#2f9be0; --accent-soft:#12284a; --prev:#5b636d; --ok:#4fb3ef; --bad:#f08a5d;
+    --hero:#0b2063; --chip-on:#0577b3; --cur:#dfe6f3;
+    --warn-bg:#2d2412; --warn-fg:#f0c674; }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:"Noto Sans KR",system-ui,-apple-system,sans-serif;-webkit-text-size-adjust:100%}
+.wrap{max-width:720px;margin:0 auto;padding:18px 14px 40px;display:flex;flex-direction:column;gap:14px}
+header{background:var(--hero);color:#fff;border-radius:var(--radius);padding:18px 16px 16px}
+.brand{display:flex;align-items:center;gap:9px;font-size:.86rem;font-weight:700;color:#fff;margin:0 0 10px;letter-spacing:-.01em}
+.brand img{width:36px;height:36px;border-radius:50%;background:#fff;padding:5px;display:block;object-fit:contain}
+h1{font-size:1.3rem;line-height:1.35;margin:0;font-weight:700;letter-spacing:-.01em}
+.sub{color:rgba(255,255,255,.78);font-size:.82rem;margin:4px 0 0}
+.asof{display:inline-block;margin-top:10px;background:var(--mj-blue);color:#fff;font-weight:700;font-size:.85rem;padding:5px 10px;border-radius:999px}
+.prog{color:rgba(255,255,255,.78);font-size:.8rem;margin-left:6px}
+.banner{background:var(--warn-bg);color:var(--warn-fg);border-radius:var(--radius);padding:10px 12px;font-size:.8rem;line-height:1.55}
+.lead{font-size:.95rem;line-height:1.65;margin:0}
+.lead b{font-variant-numeric:tabular-nums}
+.lead b.p{color:var(--accent)}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;min-width:0}
+.card.pred{border:1px dashed var(--accent);background:var(--accent-soft)}
+.card.pred .k-val{color:var(--accent)}
+.k-label{font-size:.78rem;color:var(--muted);margin:0}
+.k-val{font-size:1.75rem;font-weight:700;margin:4px 0 2px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.k-val small{font-size:.85rem;font-weight:500;color:var(--muted);margin-left:2px}
+.k-sub{font-size:.76rem;color:var(--muted);margin:0;font-variant-numeric:tabular-nums}
+h2{font-size:1rem;margin:0 0 2px;font-weight:700}
+.note{font-size:.76rem;color:var(--muted);margin:0 0 10px;line-height:1.5}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.74rem;color:var(--muted);margin-bottom:6px}
+.legend i{display:inline-block;width:14px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.legend i.ln{height:0;border-top:2px dashed var(--accent);border-radius:0;vertical-align:3px}
+.legend i.lq{height:0;border-top:2px solid var(--muted);border-radius:0;vertical-align:3px;opacity:.7}
+#chart svg{display:block;width:100%;height:auto;touch-action:manipulation}
+#chart text{font-size:11px;fill:var(--muted);font-family:inherit}
+#chart text.v{fill:var(--fg);font-weight:700;font-variant-numeric:tabular-nums}
+#chart text.lbl{font-size:10px}
+.chart-info{font-size:.82rem;margin-top:6px;font-variant-numeric:tabular-nums;min-height:1.3em}
+.hist{width:100%;border-collapse:collapse;font-size:.82rem;font-variant-numeric:tabular-nums}
+.hist th{font-weight:500;color:var(--muted);font-size:.74rem;text-align:right;padding:4px 2px;border-bottom:1px solid var(--line)}
+.hist th:first-child,.hist td:first-child{text-align:left}
+.hist td{padding:7px 2px;text-align:right;border-bottom:1px solid var(--line)}
+.hist tr.fc td{color:var(--accent);font-weight:700;border-bottom:none}
+.hist td.barcell{width:34%;padding-left:10px}
+.hbar{height:8px;background:var(--line);border-radius:4px;position:relative}
+.hbar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--prev)}
+.hist tr.fc .hbar i{background:var(--accent)}
+.hbar u{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--muted);opacity:.6}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:4px 0 8px}
+.topbar{position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 14px;margin:0 -14px}
+.jump{width:100%;font:inherit;font-size:.92rem;font-weight:500;padding:11px 38px 11px 12px;border:1.5px solid var(--mj-blue);border-radius:12px;color:var(--fg);background:var(--panel) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%230577b3' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center;-webkit-appearance:none;appearance:none}
+[id]{scroll-margin-top:72px}
+.flash{animation:flash 1.6s ease-out}
+@keyframes flash{0%,40%{background:var(--accent-soft)}100%{background:transparent}}
+.qm{position:fixed;right:12px;bottom:18px;z-index:10;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.qm-panel{display:none;flex-direction:column;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px;box-shadow:0 8px 24px rgba(7,23,72,.22);max-height:70vh;overflow-y:auto}
+.qm.open .qm-panel{display:flex}
+.qm-panel button{font:inherit;font-size:.8rem;border:0;background:transparent;color:var(--fg);padding:8px 12px;border-radius:8px;text-align:right;cursor:pointer;white-space:nowrap}
+.qm-panel button:hover,.qm-panel button:focus-visible{background:var(--accent-soft)}
+.qm-panel .qm-sep{height:1px;background:var(--line);margin:3px 6px}
+.qm-panel button.qm-top{color:var(--accent);font-weight:700}
+.qm-toggle{width:50px;height:50px;border-radius:50%;border:0;background:var(--hero);color:#fff;font:inherit;font-size:.72rem;font-weight:700;line-height:1.15;box-shadow:0 6px 18px rgba(7,23,72,.3);cursor:pointer}
+@media (min-width:1000px){ .qm{top:50%;bottom:auto;transform:translateY(-50%)} .qm .qm-panel{display:flex} .qm-toggle{display:none} }
+@media (prefers-reduced-motion: reduce){ .flash{animation:none} }
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:999px;padding:7px 13px;font:inherit;font-size:.82rem;cursor:pointer}
+.chip.on{background:var(--chip-on);color:#fff;border-color:var(--chip-on)}
+.card[data-g]{border-top:3px solid var(--mj-blue)}
+.grp-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}
+.grp-name{font-weight:700;font-size:1rem}
+.grp-sum{font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right;line-height:1.5}
+.grp-sum b{color:var(--fg);font-size:.92rem}
+.grp-sum .p{color:var(--accent);font-weight:700}
+.dept{border-top:1px solid var(--line)}
+.dept summary{list-style:none;display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:10px 0;cursor:pointer}
+.dept summary::-webkit-details-marker{display:none}
+.d-name{font-weight:500;font-size:.92rem}
+.tag{font-size:.66rem;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:1px}
+.d-meta{font-size:.74rem;color:var(--muted);grid-column:1}
+.d-rate{grid-row:1/3;grid-column:2;text-align:right;align-self:center;font-variant-numeric:tabular-nums;line-height:1.3}
+.d-rate b{font-size:1.05rem}
+.d-rate span{display:block;font-size:.74rem;color:var(--accent);font-weight:700}
+.d-rate span.over{text-decoration:underline;text-underline-offset:2px}
+.bar{grid-column:1/3;height:6px;background:var(--line);border-radius:3px;position:relative}
+.bar em{position:absolute;left:0;top:0;bottom:0;background:var(--accent);opacity:.3;border-radius:3px}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:3px}
+.bar u{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--muted);opacity:.6}
+.today{font-size:.72rem;color:var(--accent);font-weight:700;margin-left:6px}
+.det{padding:0 0 12px;display:flex;flex-direction:column;gap:6px}
+.det-t{font-size:.72rem;color:var(--muted)}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pills span{font-size:.75rem;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:3px 7px;font-variant-numeric:tabular-nums}
+.pills span b{margin-left:4px}
+.pills span.avg{border-color:var(--accent);color:var(--accent)}
+.foot{font-size:.74rem;color:var(--muted);line-height:1.65}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="brand"><img src="data:image/jpeg;base64,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" alt="명지전문대학 로고">학사학위운영센터</p>
+    <h1 id="title">2027학년도 학사학위 전공심화과정 지원현황</h1>
+    <p class="sub" id="period"></p>
+    <span class="asof" id="asof"></span><span class="prog" id="prog"></span>
+  </header>
+
+  <nav class="topbar" aria-label="바로가기"><select id="jump" class="jump" aria-label="학과·항목 바로가기"></select></nav>
+
+  <div class="banner hidden" id="banner"></div>
+
+  <p class="lead" id="lead"></p>
+
+  <section class="kpis" id="summary">
+    <div class="card"><p class="k-label">현재 지원인원</p><p class="k-val"><span id="k-app"></span><small>명</small></p><p class="k-sub" id="k-app-sub"></p></div>
+    <div class="card"><p class="k-label">현재 경쟁률</p><p class="k-val"><span id="k-rate"></span><small>:1</small></p><p class="k-sub" id="k-rate-sub"></p></div>
+    <div class="card pred"><p class="k-label">예상 최종 경쟁률</p><p class="k-val"><span id="k-pr"></span><small>:1</small></p><p class="k-sub" id="k-pr-sub"></p></div>
+    <div class="card pred"><p class="k-label">예상 최종 지원인원</p><p class="k-val"><span id="k-pa"></span><small>명</small></p><p class="k-sub" id="k-pa-sub"></p></div>
+    <div class="card"><p class="k-label">1년제 과정</p><p class="k-val"><span id="k-y1"></span><small>:1</small></p><p class="k-sub" id="k-y1-sub"></p></div>
+    <div class="card"><p class="k-label">2년제 과정</p><p class="k-val"><span id="k-y2"></span><small>:1</small></p><p class="k-sub" id="k-y2-sub"></p></div>
+  </section>
+
+  <section class="card" id="history">
+    <h2>과년도 최종 지원현황과 2027 예상</h2>
+    <p class="note">과년도 지원은 추가모집 포함 · 세로선 = 1:1</p>
+    <table class="hist"><thead><tr><th>학년도</th><th>모집</th><th>지원</th><th>경쟁률</th><th></th></tr></thead><tbody id="hist-body"></tbody></table>
+  </section>
+
+  <section class="card" id="daily">
+    <h2>일자별 누적 지원인원</h2>
+    <p class="note" id="chart-note">매일 17시 기준 누적 · 막대를 누르면 그날 숫자가 아래에 나옵니다</p>
+    <div class="legend"><span><i style="background:var(--accent)"></i>누적 지원</span><span><i class="ln"></i>예상 최종</span><span><i class="lq"></i>모집인원</span></div>
+    <div id="chart"></div>
+    <div class="chart-info" id="chart-info"></div>
+  </section>
+
+  <section id="depts">
+    <h2 style="margin-bottom:0">학부·학과별 지원현황</h2>
+    <p class="note" style="margin-top:2px">오른쪽 큰 숫자 = 현재 경쟁률, 파란 글씨 = 예상 최종 경쟁률 · 막대 진한 부분 = 현재, 연한 부분 = 예상 · 학과를 누르면 과년도 경쟁률과 일자별 지원</p>
+    <div class="chips" id="chips"></div>
+    <div id="groups" style="display:flex;flex-direction:column;gap:12px"></div>
+  </section>
+
+  <p class="foot" id="foot"></p>
+</div>
+
+<div class="qm" id="qm">
+  <div class="qm-panel" id="qm-panel" role="menu" aria-label="퀵메뉴"></div>
+  <button type="button" class="qm-toggle" id="qm-toggle" aria-expanded="false" aria-controls="qm-panel">퀵<br>메뉴</button>
+</div>
+
+<script>
+/* ===== 데이터: 매일 17시 자료로 asof·dates·d 만 갱신 ===== */
+const DATA = {
+  year: 2027,
+  period: { start: "2026-12-30", end: "2027-01-13" },
+  asof: null,          // 예: "2026-12-30 17:00"
+  dates: [],           // 집계일(17시 기준). 예: ["2026-12-30","2026-12-31"]
+  notice: null,
+  recentYears: 3,      // 예측에 쓰는 최근 학년도 수
+  histYears: [2022, 2023, 2024, 2025, 2026],
+  histTotals: [[505,641],[505,639],[490,653],[495,622],[495,609]],   // [모집, 지원]
+  groups: ["스마트시스템공학부","AI·SW융합학부","경영·휴먼라이프학부","예술·건강학부"],
+  // g 학부, n 학과, y 년한, s 주/야, q 2027 모집인원, h 과년도 [모집, 지원] 2022~2026, d 일자별 신규 지원(dates 순서)
+  depts: [
+    {g:"스마트시스템공학부", n:"산업경영공학과", y:2, s:"야", q:15, h:[[15,19],[15,21],[15,18],[15,16],[15,21]], d:[]},
+    {g:"스마트시스템공학부", n:"기계공학과", isNew:true, y:2, s:"야", q:20, h:[[0,0],[0,0],[0,0],[0,0],[0,0]], d:[]},
+    {g:"스마트시스템공학부", n:"토목공학과", y:2, s:"주", q:15, h:[[20,18],[20,23],[20,23],[15,18],[15,8]], note:"2026 미개설(최초모집 지원 10명 미만)", d:[]},
+    {g:"스마트시스템공학부", n:"지적공간정보학과", y:2, s:"야", q:15, h:[[15,14],[15,20],[15,22],[15,16],[15,16]], d:[]},
+    {g:"스마트시스템공학부", n:"전기공학과", y:2, s:"야", q:15, h:[[15,12],[15,20],[15,18],[15,12],[15,18]], d:[]},
+    {g:"스마트시스템공학부", n:"드론정보공학과", y:1, s:"주", q:15, h:[[0,0],[15,11],[15,10],[15,18],[15,16]], d:[]},
+    {g:"AI·SW융합학부", n:"전자공학과", y:1, s:"주", q:20, h:[[30,34],[30,23],[30,35],[30,24],[20,14]], d:[]},
+    {g:"AI·SW융합학부", n:"컴퓨터공학과", y:1, s:"주", q:20, h:[[20,38],[20,33],[20,38],[20,48],[20,32]], d:[]},
+    {g:"AI·SW융합학부", n:"정보통신공학과", y:1, s:"주", q:20, h:[[20,22],[20,22],[20,25],[20,21],[20,22]], d:[]},
+    {g:"AI·SW융합학부", n:"컴퓨터보안공학과", y:1, s:"주", q:20, h:[[20,26],[20,20],[20,25],[20,20],[20,22]], d:[]},
+    {g:"경영·휴먼라이프학부", n:"경영학과", y:2, s:"야", q:15, h:[[15,15],[15,21],[15,22],[15,22],[15,21]], d:[]},
+    {g:"경영·휴먼라이프학부", n:"부동산경영학과", y:2, s:"주", q:15, h:[[15,13],[15,4],[15,12],[15,12],[15,18]], d:[]},
+    {g:"경영·휴먼라이프학부", n:"사회복지학과", y:2, s:"주", q:25, h:[[25,24],[20,37],[20,33],[30,34],[25,29]], d:[]},
+    {g:"경영·휴먼라이프학부", n:"문예창작학과", y:2, s:"야", q:25, h:[[20,23],[20,27],[20,24],[20,28],[20,27]], note:"2027 모집 +5명", d:[]},
+    {g:"경영·휴먼라이프학부", n:"유아교육학과", y:1, s:"야", q:25, h:[[60,144],[50,95],[50,110],[50,122],[50,68]], note:"2027 모집 −25명", d:[]},
+    {g:"경영·휴먼라이프학부", n:"청소년교육상담학과", y:2, s:"주", q:30, h:[[30,27],[30,37],[30,34],[30,21],[30,33]], d:[]},
+    {g:"예술·건강학부", n:"산업디자인학과", y:1, s:"주", q:30, h:[[30,39],[30,45],[30,38],[30,37],[30,33]], d:[]},
+    {g:"예술·건강학부", n:"패션·리빙디자인학과", y:2, s:"주", q:15, h:[[15,9],[15,19],[15,10],[15,15],[15,15]], d:[]},
+    {g:"예술·건강학부", n:"커뮤니케이션디자인학과", y:2, s:"주", q:20, h:[[20,20],[20,20],[20,12],[20,24],[20,29]], d:[]},
+    {g:"예술·건강학부", n:"사회체육학과", y:2, s:"주", q:20, h:[[20,21],[20,22],[20,22],[20,16],[20,20]], d:[]},
+    {g:"예술·건강학부", n:"뷰티매니지먼트학과", y:2, s:"야", q:30, h:[[15,13],[15,18],[15,17],[15,17],[30,33]], d:[]},
+    {g:"예술·건강학부", n:"보건의료정보학과", y:2, s:"주", q:15, h:[[0,0],[0,0],[0,0],[0,0],[15,18]], note:"2026 신설", d:[]},
+    {g:"예술·건강학부", n:"연극영상학과", y:1, s:"주", q:40, h:[[40,50],[40,53],[40,69],[40,60],[40,78]], d:[]},
+    {g:"예술·건강학부", n:"엔터비즈니스학과", y:2, s:"주", q:15, h:[[0,0],[0,0],[15,18],[15,13],[15,18]], d:[]}
+  ]
+};
+/* ===== 데이터 끝 ===== */
+
+const $ = (id) => document.getElementById(id);
+const num = (n) => n == null ? "—" : Math.round(n).toLocaleString("ko-KR");
+const r2 = (a, q) => q ? (a / q).toFixed(2) : "—";
+const sum = (arr) => arr.reduce((a, b) => a + b, 0);
+const md = (s) => { const [, m, d] = s.split("-"); return `${+m}/${+d}`; };
+const ymdDot = (s) => s.replaceAll("-", ".");
+const WD = ["일","월","화","수","목","금","토"];
+const wd = (s) => WD[new Date(s + "T00:00:00").getDay()];
+const yy = (y) => String(y).slice(2);
+
+// ── 계산 ──
+const nDays = DATA.dates.length;
+const started = nDays > 0;
+const RY = DATA.recentYears;
+const yrFrom = DATA.histYears[DATA.histYears.length - RY], yrTo = DATA.histYears[DATA.histYears.length - 1];
+let depts = DATA.depts.map((r) => {
+  const hr = (r.h || []).map(([m, a], i) => m ? { y: DATA.histYears[i], m, a, rate: a / m } : null).filter(Boolean);
+  const rec = hr.filter((x) => x.y >= yrFrom);                         // 최근 N개년(열린 해만)
+  const avgApp = rec.length ? sum(rec.map((x) => x.a)) / rec.length : null;
+  const recRate = rec.length ? sum(rec.map((x) => x.rate)) / rec.length : null;
+  const cur = sum(r.d || []);
+  return { ...r, hr, rec, avgApp, recRate, cur, exp: avgApp, basis: avgApp != null ? "own" : null, last: (r.d && r.d.length) ? r.d[r.d.length - 1] : 0 };
+});
+// 과년도 자료가 없는 신설 학과: 같은 학부·같은 주야·같은 년한 학과의 최근 평균 경쟁률 × 모집인원
+depts = depts.map((r) => {
+  if (r.exp != null || !r.q) return r;
+  const peers = depts.filter((x) => x !== r && x.g === r.g && x.s === r.s && x.y === r.y && x.recRate != null);
+  if (!peers.length) return r;
+  const pr = sum(peers.map((x) => x.recRate)) / peers.length;
+  return { ...r, exp: pr * r.q, basis: "peer", peerRate: pr, peers: peers.map((x) => x.n) };
+});
+depts = depts.map((r) => ({ ...r, fin: r.q ? Math.max(r.cur, r.exp ?? r.cur) : null }));
+const active = depts.filter((r) => r.q);
+const agg = (rows) => ({ q: sum(rows.map((r) => r.q)), a: sum(rows.map((r) => r.cur)), f: sum(rows.map((r) => r.fin)) });
+const T = agg(active), Y1 = agg(active.filter((r) => r.y === 1)), Y2 = agg(active.filter((r) => r.y === 2));
+const cumDaily = DATA.dates.map((_, i) => sum(active.map((r) => sum((r.d || []).slice(0, i + 1)))));
+const newDaily = DATA.dates.map((_, i) => sum(active.map((r) => (r.d || [])[i] || 0)));
+const prog = T.f ? T.a / T.f : 0;
+
+// ── 머리말 ──
+const p = DATA.period;
+const dayMs = 86400000;
+const allDates = [];
+for (let t = new Date(p.start + "T00:00:00"); t <= new Date(p.end + "T00:00:00"); t = new Date(t.getTime() + dayMs)) {
+  allDates.push(`${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`);
+}
+const totalDays = allDates.length;
+$("period").textContent = `접수 ${ymdDot(p.start)}(${wd(p.start)}) ~ ${ymdDot(p.end)}(${wd(p.end)}) · 모집단위 ${depts.length}개 · 매일 17:00 기준 갱신`;
+if (started) {
+  const [aD, aT] = DATA.asof.split(" ");
+  $("asof").textContent = `${ymdDot(aD)}(${wd(aD)}) ${aT} 기준`;
+  const n = allDates.indexOf(aD) + 1;
+  if (n > 0) $("prog").textContent = `접수 ${n}일차 / ${totalDays}일`;
+} else {
+  $("asof").textContent = "접수 시작 전";
+  $("prog").textContent = `${md(p.start)}(${wd(p.start)}) 17시 첫 갱신`;
+}
+if (DATA.notice) { $("banner").textContent = DATA.notice; $("banner").classList.remove("hidden"); }
+
+// ── 요약 문장 ──
+(() => {
+  const el = $("lead"); el.textContent = "";
+  const b = (t, c) => { const x = document.createElement("b"); x.textContent = t; if (c) x.className = c; return x; };
+  if (!started) {
+    el.append(`접수 시작 전입니다. 학과별 최근 3개년(${yrFrom}~${yrTo}학년도) 평균 지원인원을 적용하면 최종 경쟁률은 약 `, b(r2(T.f, T.q) + ":1", "p"),
+      ", 지원인원은 약 ", b(num(T.f) + "명", "p"), "으로 예상됩니다.");
+  } else {
+    el.append("현재 지원 ", b(num(T.a) + "명"), ", 경쟁률 ", b(r2(T.a, T.q) + ":1"), ". 과년도 기준 예상 최종 ",
+      b(num(T.f) + "명", "p"), "(", b(r2(T.f, T.q) + ":1", "p"), ") 대비 ", b(Math.round(prog * 100) + "%"), " 들어왔습니다.");
+  }
+})();
+
+// ── 카드 ──
+$("k-app").textContent = num(T.a);
+$("k-app-sub").textContent = started ? `오늘 +${num(newDaily[nDays - 1])}명 · 예상 대비 ${Math.round(prog * 100)}%` : "12.30(수) 17시부터 집계";
+$("k-rate").textContent = r2(T.a, T.q);
+const pending = depts.filter((r) => !r.q).map((r) => r.n);
+$("k-rate-sub").textContent = `모집 ${num(T.q)}명` + (pending.length ? ` (${pending.join("·")} 제외)` : "");
+$("k-pr").textContent = r2(T.f, T.q);
+$("k-pr-sub").textContent = `학과별 ${yrFrom}~${yrTo}학년도 평균 지원인원 기준`;
+$("k-pa").textContent = num(T.f);
+const lastH = DATA.histTotals[DATA.histTotals.length - 1];
+$("k-pa-sub").textContent = `${DATA.histYears[DATA.histYears.length - 1]}학년도 최종 ${num(lastH[1])}명`;
+$("k-y1").textContent = r2(Y1.a, Y1.q); $("k-y1-sub").textContent = `지원 ${num(Y1.a)} / 모집 ${num(Y1.q)} · 예상 ${r2(Y1.f, Y1.q)}`;
+$("k-y2").textContent = r2(Y2.a, Y2.q); $("k-y2-sub").textContent = `지원 ${num(Y2.a)} / 모집 ${num(Y2.q)} · 예상 ${r2(Y2.f, Y2.q)}`;
+
+// ── 과년도 표 ──
+(() => {
+  const rows = DATA.histYears.map((y, i) => ({ y: `${y}`, m: DATA.histTotals[i][0], a: DATA.histTotals[i][1], fc: false }));
+  rows.push({ y: `${DATA.year} 예상`, m: T.q, a: T.f, fc: true });
+  const mx = Math.max(1.2, ...rows.map((r) => r.a / r.m)) * 1.05;
+  const body = $("hist-body");
+  rows.forEach((r) => {
+    const tr = document.createElement("tr"); if (r.fc) tr.className = "fc";
+    [r.y, num(r.m), num(r.a), r2(r.a, r.m)].forEach((v) => { const td = document.createElement("td"); td.textContent = v; tr.append(td); });
+    const bc = document.createElement("td"); bc.className = "barcell";
+    const hb = document.createElement("div"); hb.className = "hbar";
+    const f = document.createElement("i"); f.style.width = (r.a / r.m / mx * 100) + "%";
+    const u = document.createElement("u"); u.style.left = (1 / mx * 100) + "%";
+    hb.append(f, u); bc.append(hb); tr.append(bc); body.append(tr);
+  });
+})();
+
+// ── 일자별 누적 차트 ──
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+let sel = nDays - 1;
+function info() {
+  if (!started) { $("chart-info").textContent = `접수 시작 전 · ${md(p.start)}(${wd(p.start)})부터 매일 17시 기준으로 쌓입니다`; return; }
+  const d = DATA.dates[sel];
+  $("chart-info").textContent = `${md(d)}(${wd(d)}) 누적 ${num(cumDaily[sel])}명 · 당일 +${num(newDaily[sel])}명 · 예상 최종 대비 ${Math.round(cumDaily[sel] / T.f * 100)}%`;
+}
+function drawChart() {
+  const box = $("chart"); box.textContent = "";
+  const W = Math.max(280, box.clientWidth), H = 210, top = 16, bot = 22, padR = 4;
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "접수기간 일자별 누적 지원인원과 예상 최종, 모집인원" });
+  const max = Math.max(T.f, T.q, ...cumDaily) * 1.1;
+  const y = (v) => H - bot - (v / max) * (H - bot - top);
+  const step = (W - padR) / totalDays, bw = Math.max(4, step * 0.62);
+  svg.append(svgEl("line", { x1: 0, x2: W, y1: H - bot, y2: H - bot, stroke: "var(--line)" }));
+  // 기준선
+  const ref = (v, dash, color, label, above) => {
+    svg.append(svgEl("line", { x1: 0, x2: W - padR, y1: y(v), y2: y(v), stroke: color, "stroke-width": 1.5, "stroke-dasharray": dash || "", opacity: dash ? 1 : .55 }));
+    const t = svgEl("text", { x: 2, y: above ? y(v) - 4 : y(v) + 12, class: "lbl", style: `fill:${color}` }); t.textContent = label; svg.append(t);
+  };
+  const fAbove = y(T.f) <= y(T.q);
+  ref(T.q, null, "var(--muted)", `모집 ${num(T.q)}`, !fAbove);
+  ref(T.f, "5 4", "var(--accent)", `예상 최종 ${num(T.f)}`, fAbove);
+  const labelDays = new Set([0, totalDays - 1]);
+  for (let i = 0; i < totalDays; i += Math.max(1, Math.round(totalDays / Math.max(2, Math.floor(W / 46))))) labelDays.add(i);
+  allDates.forEach((d, i) => {
+    const x = step * i + (step - bw) / 2;
+    const k = DATA.dates.indexOf(d);
+    if (k === sel && started) svg.append(svgEl("rect", { x: step * i, y: top - 8, width: step, height: H - bot - top + 8, rx: 4, fill: "var(--accent-soft)", opacity: .7 }));
+    if (k >= 0) {
+      const v = cumDaily[k];
+      svg.append(svgEl("rect", { x, y: y(v), width: bw, height: H - bot - y(v), rx: 2, fill: "var(--accent)" }));
+      if (k === sel) { const t = svgEl("text", { x: x + bw / 2, y: y(v) - 4, "text-anchor": "middle", class: "v" }); t.textContent = num(v); svg.append(t); }
+      const hit = svgEl("rect", { x: step * i, y: 0, width: step, height: H, fill: "transparent", style: "cursor:pointer" });
+      hit.addEventListener("click", () => { sel = k; drawChart(); });
+      svg.append(hit);
+    } else {
+      svg.append(svgEl("rect", { x, y: H - bot - 2, width: bw, height: 2, fill: "var(--line)" }));
+    }
+    if (labelDays.has(i)) { const t = svgEl("text", { x: step * i + step / 2, y: H - 6, "text-anchor": i === 0 ? "start" : i === totalDays - 1 ? "end" : "middle" }); if (i === 0) t.setAttribute("x", step * i); if (i === totalDays - 1) t.setAttribute("x", step * (i + 1)); t.textContent = md(d); svg.append(t); }
+  });
+  box.append(svg); info();
+}
+drawChart();
+let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawChart, 120); });
+
+// ── 학부·학과 ──
+const maxRate = Math.max(1.2, ...active.map((r) => r.fin / r.q)) * 1.03;
+const chips = $("chips"), groupsBox = $("groups");
+["전체", ...DATA.groups].forEach((g, i) => {
+  const c = document.createElement("button"); c.type = "button"; c.className = "chip" + (i === 0 ? " on" : ""); c.textContent = g;
+  c.addEventListener("click", () => {
+    chips.querySelectorAll(".chip").forEach((x) => x.classList.toggle("on", x === c));
+    groupsBox.querySelectorAll("[data-g]").forEach((s) => s.classList.toggle("hidden", i !== 0 && s.dataset.g !== g));
+  });
+  chips.append(c);
+});
+DATA.groups.forEach((g) => {
+  const rows = depts.filter((r) => r.g === g);
+  const s = agg(rows.filter((r) => r.q));
+  const card = document.createElement("div"); card.className = "card"; card.dataset.g = g; card.id = "g-" + DATA.groups.indexOf(g);
+  const head = document.createElement("div"); head.className = "grp-head";
+  const nm = document.createElement("span"); nm.className = "grp-name"; nm.textContent = g;
+  const sm = document.createElement("span"); sm.className = "grp-sum";
+  const sb = document.createElement("b"); sb.textContent = r2(s.a, s.q) + ":1";
+  const sp = document.createElement("span"); sp.className = "p"; sp.textContent = `예상 ${r2(s.f, s.q)}:1`;
+  sm.append(sb, " · ", sp, document.createElement("br"), `지원 ${num(s.a)} / 모집 ${num(s.q)}`);
+  head.append(nm, sm); card.append(head);
+  rows.forEach((r) => {
+    const det = document.createElement("details"); det.className = "dept"; det.id = "d-" + depts.indexOf(r);
+    const su = document.createElement("summary");
+    const name = document.createElement("div"); name.className = "d-name"; name.textContent = r.n;
+    if (r.isNew) { const t = document.createElement("span"); t.className = "tag"; t.textContent = "신설"; name.append(t); }
+    const meta = document.createElement("div"); meta.className = "d-meta";
+    const rr = document.createElement("div"); rr.className = "d-rate";
+    const bar = document.createElement("div"); bar.className = "bar";
+    if (r.q) {
+      meta.textContent = `${r.y}년제 · ${r.s === "야" ? "야간" : "주간"} · 지원 ${num(r.cur)} / 모집 ${num(r.q)}`;
+      if (started && r.last > 0) { const t = document.createElement("span"); t.className = "today"; t.textContent = `오늘 +${r.last}`; meta.append(t); }
+      const rb = document.createElement("b"); rb.textContent = r2(r.cur, r.q);
+      const rs = document.createElement("span"); rs.textContent = `예상 ${r2(r.fin, r.q)}`;
+      if (r.fin / r.q >= 1) rs.className = "over";
+      rr.append(rb, rs);
+      const pf = document.createElement("em"); pf.style.width = Math.min(100, r.fin / r.q / maxRate * 100) + "%";
+      const cf = document.createElement("i"); cf.style.width = Math.min(100, r.cur / r.q / maxRate * 100) + "%";
+      const u = document.createElement("u"); u.style.left = (1 / maxRate * 100) + "%";
+      bar.append(pf, cf, u);
+    } else {
+      meta.textContent = "모집인원·지원현황 반영 예정";
+      const rb = document.createElement("b"); rb.textContent = "—"; rr.append(rb);
+    }
+    su.append(name, rr, meta, bar); det.append(su);
+    const box = document.createElement("div"); box.className = "det";
+    const t1 = document.createElement("div"); t1.className = "det-t"; t1.textContent = "과년도 지원현황 (지원/모집, 경쟁률)";
+    const p1 = document.createElement("div"); p1.className = "pills";
+    if (r.hr.length) {
+      r.hr.forEach((x) => { const e = document.createElement("span"); if (x.y >= yrFrom) e.style.borderColor = "var(--muted)"; const bb = document.createElement("b"); bb.textContent = x.rate.toFixed(2); e.append(`${yy(x.y)}학년도 ${x.a}/${x.m}`, bb); p1.append(e); });
+    } else p1.textContent = "과년도 자료 없음(신설)";
+    box.append(t1, p1);
+    if (r.note) { const tn = document.createElement("div"); tn.className = "det-t"; tn.textContent = "※ " + r.note; box.append(tn); }
+    if (r.q && r.exp != null) {
+      const t3 = document.createElement("div"); t3.className = "det-t"; t3.style.color = "var(--accent)";
+      const base = r.basis === "peer"
+        ? `같은 학부 ${r.s === "야" ? "야간" : "주간"} ${r.y}년제 학과(${r.peers.join("·")}) 최근 평균 경쟁률 ${r.peerRate.toFixed(2)} × 모집 ${r.q} = 약 ${num(r.exp)}명`
+        : `최근 ${r.rec.length}개년 평균 지원 ${r.avgApp.toFixed(1)}명 ÷ 2027 모집 ${r.q}명 = 예상 ${r2(r.exp, r.q)}:1`;
+      t3.textContent = r.cur > r.exp ? `이미 예상(${num(r.exp)}명)을 넘어 현재 인원으로 표시 · 기준: ${base}` : `${base}${started ? ` · 현재 ${Math.round(r.cur / r.fin * 100)}% 도달` : ""}`;
+      box.append(t3);
+    }
+    if (started && r.d && r.d.length) {
+      const t2 = document.createElement("div"); t2.className = "det-t"; t2.textContent = "일자별 지원";
+      const p2 = document.createElement("div"); p2.className = "pills";
+      r.d.forEach((v, i) => { const e = document.createElement("span"); const bb = document.createElement("b"); bb.textContent = v; e.append(md(DATA.dates[i]), bb); p2.append(e); });
+      box.append(t2, p2);
+    }
+    det.append(box); card.append(det);
+  });
+  groupsBox.append(card);
+});
+
+// ── 바로가기 선택창 · 퀵메뉴 ──
+const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function goTo(id) {
+  const el = $(id); if (!el) return;
+  if (el.closest(".hidden")) { const all = chips.querySelector(".chip"); if (all) all.click(); }
+  if (el.tagName === "DETAILS") el.open = true;
+  el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  if (id !== "top") { el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
+}
+(() => {
+  const sel = $("jump");
+  const opt = (v, t) => { const o = document.createElement("option"); o.value = v; o.textContent = t; return o; };
+  sel.append(opt("", "학과·항목 바로가기 (선택)"));
+  const og0 = document.createElement("optgroup"); og0.label = "전체";
+  og0.append(opt("summary", "요약 (현재·예상 경쟁률)"), opt("history", "과년도 지원현황"), opt("daily", "일자별 누적 지원"));
+  sel.append(og0);
+  DATA.groups.forEach((g, gi) => {
+    const og = document.createElement("optgroup"); og.label = g;
+    og.append(opt("g-" + gi, `${g} 전체`));
+    depts.filter((r) => r.g === g).forEach((r) => {
+      const i = depts.indexOf(r);
+      const label = !r.q ? r.n : started ? `${r.n}  ${r2(r.cur, r.q)} → 예상 ${r2(r.fin, r.q)}` : `${r.n}  (예상 ${r2(r.fin, r.q)})`;
+      og.append(opt("d-" + i, label));
+    });
+    sel.append(og);
+  });
+  sel.addEventListener("change", () => { const v = sel.value; if (v) { goTo(v); sel.value = ""; sel.blur(); } });
+
+  const qm = $("qm"), panel = $("qm-panel"), tog = $("qm-toggle");
+  const items = [["summary", "요약"], ["history", "과년도"], ["daily", "일자별"], null,
+    ...DATA.groups.map((g, gi) => ["g-" + gi, g.replace(/공학부$|학부$/, "")]), null, ["top", "▲ 맨 위"]];
+  items.forEach((it) => {
+    if (!it) { const s = document.createElement("div"); s.className = "qm-sep"; panel.append(s); return; }
+    const b = document.createElement("button"); b.type = "button"; b.setAttribute("role", "menuitem"); b.textContent = it[1];
+    if (it[0] === "top") b.className = "qm-top";
+    b.addEventListener("click", () => {
+      if (it[0] === "top") window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" }); else goTo(it[0]);
+      qm.classList.remove("open"); tog.setAttribute("aria-expanded", "false");
+    });
+    panel.append(b);
+  });
+  tog.addEventListener("click", () => { const o = qm.classList.toggle("open"); tog.setAttribute("aria-expanded", o ? "true" : "false"); });
+  document.addEventListener("click", (e) => { if (!qm.contains(e.target)) { qm.classList.remove("open"); tog.setAttribute("aria-expanded", "false"); } });
+})();
+
+$("foot").textContent = `경쟁률 = 지원인원 ÷ 모집인원. 예상 최종 지원 = 학과별 최근 ${RY}개년(${yrFrom}~${yrTo}학년도) 지원인원 평균(모집한 해만)이며, 이를 2027 모집인원으로 나눠 예상 경쟁률을 냅니다. 지원자 수는 모집인원이 바뀌어도 크게 달라지지 않아 경쟁률 대신 지원인원 평균을 씁니다. 과년도 자료가 없는 기계공학과는 같은 학부 야간 2년제 학과의 평균 경쟁률을 적용했습니다. 현재 지원이 이미 예상보다 많으면 현재 인원을 예상치로 씁니다. 과년도 지원인원은 추가모집 지원을 포함한 값이라, 최초 접수 마감(1.13) 시점 경쟁률은 예상보다 다소 낮을 수 있습니다. 학부는 2026.11.1. 편제 기준입니다.`;
+</script>
+</body>
+</html>
